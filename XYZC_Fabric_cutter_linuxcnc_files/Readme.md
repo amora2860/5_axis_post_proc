@@ -1,0 +1,2 @@
+8/22/18-This directory holds the drop in files that would be needed to have a fully functioning XYZC linuxcnc operated 
+fabric cutter. It still has to be adjusted and installation instructions are sitll needed.
