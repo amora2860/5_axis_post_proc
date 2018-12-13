@@ -45,18 +45,41 @@ class MyFrame(Frame):
                                            ("All files", "*.*")))
         fname_file = open(fname, 'r')
         data = fname_file.readlines()
+
         self.canvas.create_text(100, 0, text=data, anchor=N)
         #This line will call for the calc.py file and have it run the loaded G-code file and
         #calc.run(data)
 
         #this section is nice in that it takes each line of the G-code file and stores
         #it into a dictionary which has a list that is labeled per each line.
-        dct = {}
+
+        list = []
+        list2 = []
         n = 0
         for i in data:
-            dct['list_%s' % n] = [data[n]]
-            n = n + 1
+            list2 = i
+            #here is where the for loop should go into a class that will process and evaluate the
+            #string and look at the next ones.
+            if list2[0:2] == "G2":
+                if list2[0:3] == "G20":
+                    print("")
+                else:
 
+                    list1 = [str(list2[0:2]), str(list2[6:11]), str(list2[15:21]), str(list2[23:30]), str(list2[32:39])]
+
+                    x_1 = float(list1[1])
+                    y_1 = float(list1[2])
+                    i_1 = float(list1[3])
+                    j_1 = float(list1[4])
+                    print(x_1 + y_1)
+                    print("X " + str(x_1) + " Y " + str(y_1) + " I " + str(i_1) + " J " + str(j_1))
+            n = n + 1
+        # I guess I should just evaluate each line of code here instead of trying to save it off.
+
+
+
+        # in this section of code I am taking the stored lists in the dictionary and turning them
+        # into sortable lists. I am guessing there is an easier way to do this.
 
 
 
