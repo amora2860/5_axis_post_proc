@@ -79,14 +79,14 @@ def rads(dotprod, mag_mult):
 
 def g_eval(f,data):
     # this is a list of initialized values of the global variables.
-    '''x_1 = 0.0
+    x_1 = 0.0
     y_1 = 0.0
     x_2 = 0.0
     y_2 = 0.0
     i_2 = 0.0
     j_2 = 0.0
     t = 0
-    origin_x = 0.0
+    '''origin_x = 0.0
     origin_y = 0.0
     VEC_1x = 0.0
     VEC_1y = 0.0
@@ -103,7 +103,8 @@ def g_eval(f,data):
         global words
         words = i.split()
 
-        # this is a logic gate that will pass each line until that start of true G-code
+        # this is a logic gate that will pass each line until (* SHAPE Nr: 0 *) is reached.
+        #(* SHAPE Nr: 0 *) is the universal start of the G-code. Everything before it is not important.
         if flag != 1:
             if i =="\n":
                 f.write(str(i))
@@ -114,8 +115,8 @@ def g_eval(f,data):
                 else:
                     f.write(str(i))
         else:
-            #here is where the for loop should go into a class that will process and evaluate the
-            if words[0] == "G0":
+            # this logic checks to see if the line read is a rapid movement. It will print and store the numbers X & Y.
+            if words[0] == "G0" and words[0] == "G1":
                 f.write(str(i))
                 if words[1] == "X":
 
@@ -176,7 +177,7 @@ def g_eval(f,data):
                 y_1 = float(words[4])
 
 
-    #this catch all should go away with the use of a flag from earlier in the process
-            #here is a catch all of G-codes and line of text that dont meet any other forms of evaluation.
+
+            #Here is a catch all of that writes any G-codes that do not meet any evaluation criteria
             else:
                 f.write(str(i))
