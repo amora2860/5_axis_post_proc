@@ -36,6 +36,10 @@ def G2_G3_values(i):
 def origin_xy(x_1, y_1, i_2, y_2):
     global origin_x
     global origin_y
+    print(type(x_1))
+    print(type(y_1))
+    print(type(i_2))
+    print(type(j_2))
     origin_x = x_1 + i_2
     origin_y = y_1 + y_2
 
@@ -116,8 +120,8 @@ def g_eval(f,data):
                 if words[1] == "X":
 
                     #saving values into float values for evaluation later on
-                    x_1 = words[2]
-                    y_1 = words[4]
+                    x_1 = float(words[2])
+                    y_1 = float(words[4])
 
 
 
