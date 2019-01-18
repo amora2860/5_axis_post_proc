@@ -23,6 +23,17 @@ global mag_2
 global radians
 global mag_mult
 global words
+global C_arc
+
+# this is a list of initialized values of the global variables.
+x_0 = 0.0
+y_0 = 1.0
+
+C = 0.0
+
+flag_1 = 0
+flag_2 = 0
+
 
 def G2_G3_values(i):
     global x_2
@@ -30,6 +41,7 @@ def G2_G3_values(i):
     global i_2
     global j_2
 
+    words = i.split()
     x_2 = float(words[2])
     y_2 = float(words[4])
     i_2 = float(words[6])
@@ -38,17 +50,15 @@ def G2_G3_values(i):
 def G0_G1_values(i):
     global x_2
     global y_2
-
+    words = i.split()
     x_2 = float(words[2])
     y_2 = float(words[4])
-
 
 def origin_xy(x_1, y_1, i_2, y_2):
     global origin_x
     global origin_y
     origin_x = x_1 + i_2
     origin_y = y_1 + y_2
-
 
 def vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y):
     global VEC_1x
@@ -65,8 +75,8 @@ def vectors_G0_G1(x_0, y_0,x_1, y_1, x_2, y_2):
     global VEC_1y
     global VEC_2x
     global VEC_2y
-    VEC_1x = x_1 - x_0
-    VEC_1y = y_1 - y_0
+    VEC_1x = x_0 - x_1
+    VEC_1y = y_0 - y_1
     VEC_2x = x_2 - x_1
     VEC_2y = y_2 - y_1
 
@@ -79,7 +89,7 @@ def dot(VEC_1x, VEC_2x, VEC_1y, VEC_2y):
 def magnitude(VEC_1x,VEC_1y, VEC_2x, VEC_2y):
     global mag_1
     global mag_2
-    mag_1 = math.sqrt((VEC_1x**2) + (VEC_2x**2))
+    mag_1 = math.sqrt((VEC_1x**2) + (VEC_1y**2))
     mag_2 = math.sqrt((VEC_2x**2) + (VEC_2y**2))
 
 
@@ -96,20 +106,20 @@ def rads(dotprod, mag_mult):
 #THIS CAN FLIP THE SIDE IT IS ON
 def line_eval_G0_G1(x_1, y_1, x_2, y_2):
     global cord
-    global C
 
     # what coordinate system is each line in
     if x_1 == x_2:
         cord = "none_0"
 
-    if y_1 == y_2:
+    elif y_1 == y_2:
         cord = "none_90"
 
-    if x_2 > x_1:
+    elif x_2 > x_1:
         cord = "right_side"
 
-    if x_2 < x_1:
+    elif x_2 < x_1:
         cord = "left_side"
+
 #this needs to be oriented towards evaluating the center point
 def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
     global C
@@ -117,21 +127,25 @@ def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
 
     if x_1 == origin_x:
         cord = "none_0"
+
     if y_1 == origin_y:
         cord = "none_90"
 
     if x_2 > x_1:
         cord = "right_side"
+
     if x_2 < x_1:
         cord = "left_side"
 
-# This function gets the smallest angle betweeen two vectors.
+
+# This function gets the smallest angle between two vectors.
 # Then dending on if it is the right side or left relative to the C axis which facing (0,1) or at 0 deg is the origin.
+
 def cord_angle_calc(dotprod, mag_mult):
     global C
     global cord
     if cord == "none_0":
-        C = 90
+        C = 0
 
     if cord == "none_90":
         C = 90
@@ -139,14 +153,13 @@ def cord_angle_calc(dotprod, mag_mult):
     if cord == "right_side":
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-        C = 180 - theta
+
+        C = theta
 
     if cord == "left_side":
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-        C = 180 + theta
-
-
+        C = 360 - theta
 
 #this gives the orientation of C to every point that is evaluated
 def C_line(x_1, y_1):
@@ -156,11 +169,8 @@ def C_line(x_1, y_1):
     x_0 = x_1
     y_0 = y_1 + 1
 
-
-
 #this function is to only be used if G0/G1 is going to another G0/G1
-def C_G0_G1_eval(i):
-    global C
+def C_G0_G1_eval(i,x_1,y_1):
 
     G0_G1_values(i)
 
@@ -182,6 +192,7 @@ def C_G0_G1_eval(i):
 
     cord_angle_calc(dotprod,mag_mult)
 
+    return C
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G2_G3_eval(i):
     global C
@@ -201,7 +212,7 @@ def C_G2_G3_eval(i):
     # finally the magnitudes are multiplied
     multi_mag(mag_1, mag_2)
 
-    #
+    # there needs
 
     #there needs to be an evaluation as to which quadrent the center point resides in relative to point 1.
     line_eval_G2_G3(x_1, y_1, x_2, y_2)
@@ -211,21 +222,10 @@ def C_G2_G3_eval(i):
 
 
 def g_eval(f,data):
-    # this is a list of initialized values of the global variables.
-    x_0 = 0.0
-    y_0 = 1.0
-    x_1 = 0.0
-    y_1 = 0.0
-    x_2 = 0.0
-    y_2 = 0.0
-    i_2 = 0.0
-    j_2 = 0.0
-    t = 0
-    C = 0.0
-
-
-    flag_1 = 0
-    flag_2 = 0
+    global flag_1
+    global flag_2
+    global x_1
+    global y_1
     #for loop ensures that each line is read in the g-code file
     for i in data:
         global words
@@ -268,15 +268,23 @@ def g_eval(f,data):
 
 
                         #evaluation of where C axis should point
-                        C_G0_G1_eval(i)
+                        C_G0_G1_eval(i,x_1,y_1)
+
+                        #this raises the Z axis so the cut material will not be ruined
+                        f.write("G1" + " Z " + str(1.125) + "\r\n")
 
                         #Have C axis rotate before moving to next point.
                         f.write("G1" + " C " + str("%.3f" % round(C, 3)) + "\r\n")
 
+                        #this lowers the Z axis back down so it can cut
+                        f.write("G1" + " Z " + str(-1.125) + "\r\n")
+
                         #write line for point.
                         f.write(str(i))
 
+
                         #these two lines of code moves point 2 to point 1.
+
                         x_1 = x_2
                         y_1 = y_2
 
@@ -293,8 +301,21 @@ def g_eval(f,data):
 
                     C_G2_G3_eval(i)
 
+                    # this raises the Z axis so the cut material will not be ruined
+                    f.write("G1" + " Z " + str(1.125) + "\r\n")
+
+                    # Have C axis rotate before moving to next point.
+                    f.write("G1" + " C " + str("%.3f" % round(C, 3)) + "\r\n")
+
+                    # this lowers the Z axis back down so it can cut
+                    f.write("G1" + " Z " + str(-1.125) + "\r\n")
+
+
                     #last step in this process is to add the line "C XXX.XXX" which will be the degrees of rotation of the C axis
-                    f.write( str(i[:-1]) + "  C " + str("%.3f" % round(C,3)) +  "\r\n")
+                    f.write( str(i[:-1]) + "  C " + str("%.3f" % round(C_arc,3)) +  "\r\n")
+
+
+
 
                 #this section of code takes the end point and makes it the new starting point.
                 #the t == 1 flag insures that this part is only entered into if a second point is defined.
