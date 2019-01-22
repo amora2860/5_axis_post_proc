@@ -169,6 +169,86 @@ def C_line(x_1, y_1):
     x_0 = x_1
     y_0 = y_1 + 1
 
+# this function finds what cordinate that point 1 and point 2 are in.
+def arc_cords_p1(x_1, y_1, origin_x, origin_y):
+    global cord_p1
+
+    # is point #1 on the left side of the origin
+    if x_1 < origin_x:
+        # x_1 is either cord 3 or 4
+
+        #checking whether point #1 is in cord 4
+        if y_1 < origin_y:
+            # point #1 is in cord 4
+            cord_p1 = "4"
+        else:
+            # point #1 is in cord 3
+            cord_p1 = "3"
+    # is point #1 on the right side of the origin
+    elif x_1 > origin_x:
+        # x_1 is either cord 1 or 2
+
+        # checking whether point #1 is in cord 1
+        if y_1 < origin_y:
+        # point #1 is in cord 1
+            cord_p1 = "1"
+        else:
+        # point #1 is in cord 2
+            cord_p1 = "2"
+    #special senario where x_1 or y_1 is equal to the origin
+    # is point #1 equal to the origin_x
+    elif x_1 == origin_x:
+        #the point is between (2 and  3) or ( 1 and 4)
+        if y_1 < origin_y:
+            # point 1 is on (1 and 4) line
+            cord_p1 = "1&4"
+        else:
+            # point 1 is on (2 and 3) line
+            cord_p1 = "2&3"
+
+
+# this function finds what cordinate that point 1 and point 2 are in.
+def arc_cords_p2(x_2, y_2, origin_x, origin_y):
+    global cord_p2
+
+    # is point #2 on the left side of the origin
+    if x_2 < origin_x:
+        # x_2 is either cord 3 or 4
+
+        # checking whether point #1 is in cord 4
+        if y_2 < origin_y:
+            # point #1 is in cord 4
+            cord_p2 = "4"
+        else:
+            # point #2 is in cord 3
+            cord_p2 = "3"
+            # is point #1 on the right side of the origin
+    elif x_2 > origin_x:
+        # x_2 is either cord 1 or 2
+
+        # checking whether point #2 is in cord 1
+        if y_2 < origin_y:
+            # point #2 is in cord 1
+            cord_p2 = "1"
+        else:
+            # point #1 is in cord 2
+            cord_p2 = "2"
+    # special senario where x_2  or y_2 is equal to the origin
+    # is point #2 equal to the origin_x
+    elif x_2 == origin_x:
+        # the point is between (2 and  3) or ( 1 and 4)
+        if y_2 < origin_y:
+            # point 2 is on (1 and 4) line
+            cord_p2 = "1&4"
+        else:
+            # point 2 is on (2 and 3) line
+            cord_p2 = "2&3"
+
+def arc_comp (cord_p1, cord_p1, G_code):
+    # layout
+
+
+
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G0_G1_eval(i,x_1,y_1):
 
@@ -193,33 +273,47 @@ def C_G0_G1_eval(i,x_1,y_1):
     cord_angle_calc(dotprod,mag_mult)
 
     return C
+
+
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G2_G3_eval(i):
     global C
+    global last_G_code
+    global x_0
+    global y_0
 
     G2_G3_values(i)
 
-    C_line(x_1, y_1)
+    origin_xy(x_1, y_1, i_2, y_2)
 
-    vectors_G2_G3(x_0, y_0, x_1, y_1, x_2, y_2)
+    vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y)
 
-    # Here is the dot product being solved
+    # the arc rotation should be calulated for each of the arcs.
     dot(VEC_1x, VEC_2x, VEC_1y, VEC_2y)
 
-    # the magnetude of both vectors is being evaluated
+    # the magnitude of both vectors is being evaluated
     magnitude(VEC_1x, VEC_1y, VEC_2x, VEC_2y)
 
     # finally the magnitudes are multiplied
     multi_mag(mag_1, mag_2)
 
-    # there needs
+    rads(dotprod, mag_mult)
 
-    #there needs to be an evaluation as to which quadrent the center point resides in relative to point 1.
-    line_eval_G2_G3(x_1, y_1, x_2, y_2)
+    theta = math.degrees(radians)
 
-    cord_angle_calc(dotprod,mag_mult)
+    #evaluation of starting angle
 
 
+    #Evaluation of total rotation
+    # finds corcinate that point #1 is in
+    arc_cords_p1()
+    # finds the cordinate that point #2 is in
+    arc_cords_p2()
+    # finds the degrees of rotation of the shortest angle between point #1 and #2
+    arc_angle(x_1, y_1, origin_x, origin_y, x_2, y_2)
+    #based on comparison between coordinates of point #1 and #2 then degrees of rotation is evaluated
+    # so correct one is selected
+    arc_comp()
 
 def g_eval(f,data):
     global flag_1
