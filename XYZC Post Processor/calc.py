@@ -181,9 +181,11 @@ def arc_cords_p1(x_1, y_1, origin_x, origin_y):
         if y_1 < origin_y:
             # point #1 is in cord 4
             cord_p1 = "4"
-        else:
+        elif y_1 > origin_y:
             # point #1 is in cord 3
             cord_p1 = "3"
+        elif y_1 == origin_y:
+            cord_p1 = "3&4"
     # is point #1 on the right side of the origin
     elif x_1 > origin_x:
         # x_1 is either cord 1 or 2
@@ -192,9 +194,11 @@ def arc_cords_p1(x_1, y_1, origin_x, origin_y):
         if y_1 < origin_y:
         # point #1 is in cord 1
             cord_p1 = "1"
-        else:
+        elif y_1 > origin_y:
         # point #1 is in cord 2
             cord_p1 = "2"
+        elif y_1 == origin_y:
+            cord_p1 = "1&2"
     #special senario where x_1 or y_1 is equal to the origin
     # is point #1 equal to the origin_x
     elif x_1 == origin_x:
@@ -211,32 +215,36 @@ def arc_cords_p1(x_1, y_1, origin_x, origin_y):
 def arc_cords_p2(x_2, y_2, origin_x, origin_y):
     global cord_p2
 
-    # is point #2 on the left side of the origin
+ # is point #2 on the left side of the origin
     if x_2 < origin_x:
         # x_2 is either cord 3 or 4
 
-        # checking whether point #1 is in cord 4
+        #checking whether point #2 is in cord 4
         if y_2 < origin_y:
-            # point #1 is in cord 4
+            # point #2 is in cord 4
             cord_p2 = "4"
-        else:
+        elif y_2 > origin_y:
             # point #2 is in cord 3
             cord_p2 = "3"
-            # is point #1 on the right side of the origin
+        elif y_2 == origin_y:
+            cord_p2 = "3&4"
+    # is point #2 on the right side of the origin
     elif x_2 > origin_x:
         # x_2 is either cord 1 or 2
 
         # checking whether point #2 is in cord 1
         if y_2 < origin_y:
-            # point #2 is in cord 1
+        # point #2 is in cord 1
             cord_p2 = "1"
-        else:
-            # point #1 is in cord 2
+        elif y_2 > origin_y:
+        # point #2 is in cord 2
             cord_p2 = "2"
-    # special senario where x_2  or y_2 is equal to the origin
+        elif y_2 == origin_y:
+            cord_p2 = "1&2"
+    #special senario where x_2 or y_2 is equal to the origin
     # is point #2 equal to the origin_x
     elif x_2 == origin_x:
-        # the point is between (2 and  3) or ( 1 and 4)
+        #the point is between (2 and  3) or ( 1 and 4)
         if y_2 < origin_y:
             # point 2 is on (1 and 4) line
             cord_p2 = "1&4"
@@ -244,10 +252,308 @@ def arc_cords_p2(x_2, y_2, origin_x, origin_y):
             # point 2 is on (2 and 3) line
             cord_p2 = "2&3"
 
-def arc_comp (cord_p1, cord_p1, G_code):
-    # layout
+
+# this function is meant to evaluate how the vector angle should be altered.
+def arc_comp (cord_p1, cord_p2, G_code):
+
+    if cord_p1 == "1":
+        if cord_p2 == "1":
+            #this theta will have to tell if point_1 is to the right or left of point 2
+            eval2_theta
+
+        elif cord_p2 == "2":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "3":
+            eval1_theta
+
+        elif cord_p2 == "4":
+            if G_code == "G3":
+                C = 360 - theta
+
+            elif G_code == "G2":
+                C = theta
+        elif cord_p2 == "1&2":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "2&3":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
 
 
+        elif cord_p2 == "3&4":
+            if G_code == "G3":
+                C = 360 - theta
+
+            elif G_code == "G2":
+                C = theta
+
+        elif cord_p2 == "4&1":
+            if G_code == "G3":
+                C = 360 - theta
+
+            elif G_code == "G2":
+                C = theta
+
+    if cord_p1 == "2":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            if G_code == "G3":
+                C = 360 - theta
+
+            elif G_code == "G2":
+                C = theta
+        elif cord_p2 == "2":
+            eval2_theta
+
+        elif cord_p2 == "3":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+                
+        elif cord_p2 == "4":
+            eval1_theta
+        elif cord_p2 == "1&2":
+            if G_code == "G3":
+                C = 360 - theta
+
+            elif G_code == "G2":
+                C = theta
+        elif cord_p2 == "2&3":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+        elif cord_p2 == "3&4":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+        elif cord_p2 == "4&1":
+            if G_code == "G3":
+                C = 360 - theta
+
+            elif G_code == "G2":
+                C = theta
+                
+    if cord_p1 == "3":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            eval1_theta
+        
+        elif cord_p2 == "2":
+            if G_code == "G2":
+                C = theta
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "3":
+            eval2_theta 
+
+        elif cord_p2 == "4":
+            if G_code == "G2":
+                C = 360 - theta
+                
+            elif G_code == "G3":
+                C = theta
+                
+        elif cord_p2 == "1&2":
+            if G_code == "G2":
+                C = theta
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "2&3":
+            if G_code == "G2":
+                C = theta
+            elif G_code == "G3":
+                C = 360 - theta
+        elif cord_p2 == "3&4":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "4&1":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+    if cord_p1 == "4":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "2":
+            eval1_theta
+
+        elif cord_p2 == "3":
+            if G_code == "G2":
+                C = theta
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "4":
+            eval2_theta
+
+        elif cord_p2 == "1&2":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "2&3":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+        elif cord_p2 == "3&4":
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "4&1":
+
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+    if cord_p1 == "1&2":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "2":
+            if G_code == "G2":
+                C = 360 - theta
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "3":
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif cord_p2 == "4":
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "2&3":
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif cord_p2 == "3&4":
+            C = theta
+
+        elif cord_p2 == "4&1":
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+    if cord_p1 == "2&3":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            eval2_theta
+        elif cord_p2 == "2":
+            if G_code == "G2":
+                theta = 360 - theta
+                elif G_code == "G3":
+
+        elif cord_p2 == "3":
+
+        elif cord_p2 == "4":
+            print("hello")
+
+        elif cord_p2 == "1&2:
+
+        elif cord_p2 == "3&4":
+
+        elif cord_p2 == "4&1":
+            print("hello")
+
+    if cord_p1 == "3&4":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            eval2_theta
+        elif cord_p2 == "2":
+            if G_code == "G2":
+                theta = 360 - theta
+                elif G_code == "G3":
+
+        elif cord_p2 == "3":
+
+        elif cord_p2 == "4":
+            print("hello")
+
+        elif cord_p2 == "1&2":
+
+        elif cord_p2 == "2&3":
+
+        elif cord_p2 == "4&1":
+            print("hello")
+
+    if cord_p1 == "4&1":
+        if cord_p2 == "1":
+            # this theta will have to tell if point_1 is to the right or left of point 2
+            eval2_theta
+        elif cord_p2 == "2":
+            if G_code == "G2":
+                theta = 360 - theta
+                elif G_code == "G3":
+
+        elif cord_p2 == "3":
+
+        elif cord_p2 == "4":
+            print("hello")
+
+        elif cord_p2 == "1&2":
+
+        elif cord_p2 == "2&3":
+
+        elif cord_p2 == "3&4":
+            print("hello")
 
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G0_G1_eval(i,x_1,y_1):
