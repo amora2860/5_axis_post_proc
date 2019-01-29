@@ -24,12 +24,15 @@ global radians
 global mag_mult
 global words
 global C_arc
+global theta
+global G_code
 
 # this is a list of initialized values of the global variables.
 x_0 = 0.0
 y_0 = 1.0
 
 C = 0.0
+theta = 0.0
 
 flag_1 = 0
 flag_2 = 0
@@ -252,14 +255,21 @@ def arc_cords_p2(x_2, y_2, origin_x, origin_y):
             # point 2 is on (2 and 3) line
             cord_p2 = "2&3"
 
+def eval1_theta():
+    print("eval1_theta")
+
+def eval2_theta():
+    print("eval2_theta")
 
 # this function is meant to evaluate how the vector angle should be altered.
-def arc_comp (cord_p1, cord_p2, G_code):
+def arc_comp (cord_p1, cord_p2):
+    global theta
+    global G_code
 
     if cord_p1 == "1":
         if cord_p2 == "1":
             #this theta will have to tell if point_1 is to the right or left of point 2
-            eval2_theta
+            eval2_theta()
 
         elif cord_p2 == "2":
             if G_code == "G2":
@@ -269,7 +279,7 @@ def arc_comp (cord_p1, cord_p2, G_code):
                 C = theta
 
         elif cord_p2 == "3":
-            eval1_theta
+            eval1_theta()
 
         elif cord_p2 == "4":
             if G_code == "G3":
@@ -314,8 +324,9 @@ def arc_comp (cord_p1, cord_p2, G_code):
 
             elif G_code == "G2":
                 C = theta
+
         elif cord_p2 == "2":
-            eval2_theta
+            eval2_theta()
 
         elif cord_p2 == "3":
             if G_code == "G2":
@@ -325,7 +336,8 @@ def arc_comp (cord_p1, cord_p2, G_code):
                 C = theta
                 
         elif cord_p2 == "4":
-            eval1_theta
+            eval1_theta()
+
         elif cord_p2 == "1&2":
             if G_code == "G3":
                 C = 360 - theta
@@ -354,52 +366,27 @@ def arc_comp (cord_p1, cord_p2, G_code):
     if cord_p1 == "3":
         if cord_p2 == "1":
             # this theta will have to tell if point_1 is to the right or left of point 2
-            eval1_theta
+            eval1_theta()
         
-        elif cord_p2 == "2":
+        elif cord_p2 == "2" or cord_p2 == "1&2" or cord_p2 == "2&3":
             if G_code == "G2":
                 C = theta
             elif G_code == "G3":
                 C = 360 - theta
 
         elif cord_p2 == "3":
-            eval2_theta 
+            eval2_theta()
 
-        elif cord_p2 == "4":
+        elif cord_p2 == "4" or cord_p2 == "3&4" or cord_p2 == "4&1":
             if G_code == "G2":
                 C = 360 - theta
                 
-            elif G_code == "G3":
-                C = theta
-                
-        elif cord_p2 == "1&2":
-            if G_code == "G2":
-                C = theta
-            elif G_code == "G3":
-                C = 360 - theta
-
-        elif cord_p2 == "2&3":
-            if G_code == "G2":
-                C = theta
-            elif G_code == "G3":
-                C = 360 - theta
-        elif cord_p2 == "3&4":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-
-        elif cord_p2 == "4&1":
-            if G_code == "G2":
-                C = 360 - theta
-
             elif G_code == "G3":
                 C = theta
 
     if cord_p1 == "4":
-        if cord_p2 == "1":
-            # this theta will have to tell if point_1 is to the right or left of point 2
+        if cord_p2 == "1" or cord_p2 == "1&2" or cord_p2 == "2&3" or cord_p2 == "4&1":
+
             if G_code == "G2":
                 C = 360 - theta
 
@@ -407,153 +394,93 @@ def arc_comp (cord_p1, cord_p2, G_code):
                 C = theta
 
         elif cord_p2 == "2":
-            eval1_theta
+            eval1_theta()
 
-        elif cord_p2 == "3":
+        elif cord_p2 == "3" or cord_p2 == "3&4":
             if G_code == "G2":
                 C = theta
             elif G_code == "G3":
                 C = 360 - theta
 
         elif cord_p2 == "4":
-            eval2_theta
-
-        elif cord_p2 == "1&2":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-
-        elif cord_p2 == "2&3":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-        elif cord_p2 == "3&4":
-            if G_code == "G2":
-                C = theta
-
-            elif G_code == "G3":
-                C = 360 - theta
-
-        elif cord_p2 == "4&1":
-
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
+            eval2_theta()
 
     if cord_p1 == "1&2":
-        if cord_p2 == "1":
-            # this theta will have to tell if point_1 is to the right or left of point 2
+        if cord_p2 == "1" or cord_p2 == "4" or cord_p2 == "2&3" or cord_p2 == "4&1":
+
             if G_code == "G2":
                 C = theta
 
             elif G_code == "G3":
                 C = 360 - theta
 
-        elif cord_p2 == "2":
-            if G_code == "G2":
-                C = 360 - theta
-            elif G_code == "G3":
-                C = theta
-
-        elif cord_p2 == "3":
+        elif cord_p2 == "2" or cord_p2 == "3":
             if G_code == "G2":
                 C = 360 - theta
 
             elif G_code == "G3":
                 C = theta
-
-        elif cord_p2 == "4":
-            if G_code == "G2":
-                C = theta
-
-            elif G_code == "G3":
-                C = 360 - theta
-
-        elif cord_p2 == "2&3":
-            if G_code == "G2":
-                C = theta
-
-            elif G_code == "G3":
-                C = 360 - theta
 
         elif cord_p2 == "3&4":
             C = theta
 
-        elif cord_p2 == "4&1":
+    if cord_p1 == "2&3":
+        if cord_p2 == "1" or cord_p2 == "2" or cord_p2 == "1&2":
+
             if G_code == "G2":
                 C = theta
 
             elif G_code == "G3":
                 C = 360 - theta
 
-    if cord_p1 == "2&3":
-        if cord_p2 == "1":
-            # this theta will have to tell if point_1 is to the right or left of point 2
-            eval2_theta
-        elif cord_p2 == "2":
+
+        elif cord_p2 == "3" or cord_p2 == "4" or cord_p2 == "3&4":
             if G_code == "G2":
-                theta = 360 - theta
-                elif G_code == "G3":
+                C = 360 - theta
 
-        elif cord_p2 == "3":
-
-        elif cord_p2 == "4":
-            print("hello")
-
-        elif cord_p2 == "1&2:
-
-        elif cord_p2 == "3&4":
+            elif G_code == "G3":
+                C = theta
 
         elif cord_p2 == "4&1":
-            print("hello")
+            C = theta
 
     if cord_p1 == "3&4":
-        if cord_p2 == "1":
-            # this theta will have to tell if point_1 is to the right or left of point 2
-            eval2_theta
-        elif cord_p2 == "2":
+        if cord_p2 == "1" or cord_p2 == "4" or cord_p2 == "4&1":
             if G_code == "G2":
-                theta = 360 - theta
-                elif G_code == "G3":
+                C = 360 - theta
 
-        elif cord_p2 == "3":
+            elif G_code == "G3":
+                C = theta
 
-        elif cord_p2 == "4":
-            print("hello")
+        elif cord_p2 == "2" or cord_p2 == "3" or cord_p2 == "2&3":
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
 
         elif cord_p2 == "1&2":
-
-        elif cord_p2 == "2&3":
-
-        elif cord_p2 == "4&1":
-            print("hello")
+            C = theta
 
     if cord_p1 == "4&1":
-        if cord_p2 == "1":
-            # this theta will have to tell if point_1 is to the right or left of point 2
-            eval2_theta
-        elif cord_p2 == "2":
+        if cord_p2 == "1" or cord_p2 == "2":
             if G_code == "G2":
-                theta = 360 - theta
-                elif G_code == "G3":
+                C = 360 - theta
 
-        elif cord_p2 == "3":
+            elif G_code == "G3":
+                C = theta
 
-        elif cord_p2 == "4":
-            print("hello")
+        elif cord_p2 == "3" or cord_p2 == "4" or cord_p2 == "1&2" or cord_p2 == "3&4":
+            if G_code == "G2":
+                C = theta
 
-        elif cord_p2 == "1&2":
+            elif G_code == "G3":
+                C = 360 - theta
 
         elif cord_p2 == "2&3":
+            C = theta
 
-        elif cord_p2 == "3&4":
-            print("hello")
+
 
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G0_G1_eval(i,x_1,y_1):
