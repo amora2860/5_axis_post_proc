@@ -212,7 +212,7 @@ def arc_cords_p1(x_1, y_1, origin_x, origin_y):
         else:
             # point 1 is on (2 and 3) line
             cord_p1 = "2&3"
-
+    return cord_p1
 
 # this function finds what cordinate that point 1 and point 2 are in.
 def arc_cords_p2(x_2, y_2, origin_x, origin_y):
@@ -254,6 +254,7 @@ def arc_cords_p2(x_2, y_2, origin_x, origin_y):
         else:
             # point 2 is on (2 and 3) line
             cord_p2 = "2&3"
+    return cord_p2
 
 def eval1_theta():
     print("eval1_theta")
@@ -271,7 +272,7 @@ def arc_comp (cord_p1, cord_p2):
             #this theta will have to tell if point_1 is to the right or left of point 2
             eval2_theta()
 
-        elif cord_p2 == "2":
+        elif cord_p2 == "2" or cord_p2 == "1&2" or cord_p2 == "2&3":
             if G_code == "G2":
                 C = 360 - theta
 
@@ -281,54 +282,27 @@ def arc_comp (cord_p1, cord_p2):
         elif cord_p2 == "3":
             eval1_theta()
 
-        elif cord_p2 == "4":
-            if G_code == "G3":
-                C = 360 - theta
-
-            elif G_code == "G2":
-                C = theta
-        elif cord_p2 == "1&2":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-
-        elif cord_p2 == "2&3":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-
-
-        elif cord_p2 == "3&4":
+        elif cord_p2 == "4" or cord_p2 == "3&4" or cord_p2 == "4&1":
             if G_code == "G3":
                 C = 360 - theta
 
             elif G_code == "G2":
                 C = theta
 
-        elif cord_p2 == "4&1":
-            if G_code == "G3":
-                C = 360 - theta
-
-            elif G_code == "G2":
-                C = theta
 
     if cord_p1 == "2":
-        if cord_p2 == "1":
+        if cord_p2 == "1" or cord_p2 == "1&2" or cord_p2 == "4&1":
             # this theta will have to tell if point_1 is to the right or left of point 2
-            if G_code == "G3":
-                C = 360 - theta
-
-            elif G_code == "G2":
+            if G_code == "G2":
                 C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
 
         elif cord_p2 == "2":
             eval2_theta()
 
-        elif cord_p2 == "3":
+        elif cord_p2 == "3" or cord_p2 == "2&3" or cord_p2 == "3&4":
             if G_code == "G2":
                 C = 360 - theta
 
@@ -338,31 +312,6 @@ def arc_comp (cord_p1, cord_p2):
         elif cord_p2 == "4":
             eval1_theta()
 
-        elif cord_p2 == "1&2":
-            if G_code == "G3":
-                C = 360 - theta
-
-            elif G_code == "G2":
-                C = theta
-        elif cord_p2 == "2&3":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-        elif cord_p2 == "3&4":
-            if G_code == "G2":
-                C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-        elif cord_p2 == "4&1":
-            if G_code == "G3":
-                C = 360 - theta
-
-            elif G_code == "G2":
-                C = theta
-                
     if cord_p1 == "3":
         if cord_p2 == "1":
             # this theta will have to tell if point_1 is to the right or left of point 2
@@ -539,14 +488,16 @@ def C_G2_G3_eval(i):
 
     #Evaluation of total rotation
     # finds corcinate that point #1 is in
-    arc_cords_p1()
+    arc_cords_p1(x_1, y_1, origin_x, origin_y)
     # finds the cordinate that point #2 is in
-    arc_cords_p2()
+    arc_cords_p2(x_2, y_2, origin_x, origin_y)
+
     # finds the degrees of rotation of the shortest angle between point #1 and #2
-    arc_angle(x_1, y_1, origin_x, origin_y, x_2, y_2)
+    #arc_angle(x_1, y_1, origin_x, origin_y, x_2, y_2)
+
     #based on comparison between coordinates of point #1 and #2 then degrees of rotation is evaluated
     # so correct one is selected
-    arc_comp()
+    arc_comp(cord_p1, cord_p2)
 
 def g_eval(f,data):
     global flag_1
