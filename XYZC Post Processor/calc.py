@@ -105,8 +105,7 @@ def rads(dotprod, mag_mult):
     global radians
     radians = math.acos(dotprod / mag_mult)
 
-#THIS NEEDS TO EVALUATE THE SIDE REGARDLESS OF WHETHER THE LINE IS GOING DOWN OR UP IN THE Y AXIS.
-#THIS CAN FLIP THE SIDE IT IS ON
+
 def line_eval_G0_G1(x_1, y_1, x_2, y_2):
     global cord
 
@@ -141,9 +140,6 @@ def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
         cord = "left_side"
 
 
-# This function gets the smallest angle between two vectors.
-# Then dending on if it is the right side or left relative to the C axis which facing (0,1) or at 0 deg is the origin.
-
 def cord_angle_calc(dotprod, mag_mult):
     global C
     global cord
@@ -173,7 +169,7 @@ def C_line(x_1, y_1):
     y_0 = y_1 + 1
 
 # this function finds what cordinate that point 1 and point 2 are in.
-def arc_cords_p1(x_1, y_1, origin_x, origin_y):
+def arc_cords_p1(x_1, y_1, origin_x, origin_y, theta):
     global cord_p1
 
     # is point #1 on the left side of the origin
@@ -215,7 +211,7 @@ def arc_cords_p1(x_1, y_1, origin_x, origin_y):
     return cord_p1
 
 # this function finds what cordinate that point 1 and point 2 are in.
-def arc_cords_p2(x_2, y_2, origin_x, origin_y):
+def arc_cords_p2(x_2, y_2, origin_x, origin_y, theta):
     global cord_p2
 
  # is point #2 on the left side of the origin
@@ -256,11 +252,83 @@ def arc_cords_p2(x_2, y_2, origin_x, origin_y):
             cord_p2 = "2&3"
     return cord_p2
 
-def eval1_theta():
-    print("eval1_theta")
+def eval1_theta(cord_p1, cord_p2, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
+    m1 = (y_1 - origin_y) / (x_1 - origin_x)
+    b1 = y_1 - m1 * x_1
+    y_3 = m1 * x_2 + b1
 
-def eval2_theta():
-    print("eval2_theta")
+#I need to add the comparisions for if at 180
+
+def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
+    m1 = (y_1 - origin_y)/(x_1 - origin_x)
+    b1 = y_1 - m1 * x_1
+
+    #y_3 is a theroretical value that will identify whether point_2 is above or below point_1
+    y_3 = m1*x_2 + b1
+
+    if cord_p1 == "1":
+        if y_2 > y_3:
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif y_2 < y_3:
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+    #I am not including y_2 == y_3 since it shouldnt happen with an arc command
+
+    if cord_p1 == "2":
+        if y_2 > y_3:
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+        elif y_2 < y_3:
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+#this needs to be checked along with #4
+    if cord_p1 == "3":
+        if y_2 > y_3:
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif y_2 < y_3:
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+
+    if cord_p1 == "4":
+        if y_2 > y_3:
+            if G_code == "G2":
+                C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+        elif y_2 < y_3:
+            if G_code == "G2":
+                C = theta
+
+            elif G_code == "G3":
+                C = 360 - theta
+    return C
 
 # this function is meant to evaluate how the vector angle should be altered.
 def arc_comp (cord_p1, cord_p2):
@@ -430,7 +498,6 @@ def arc_comp (cord_p1, cord_p2):
             C = theta
 
 
-
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G0_G1_eval(i,x_1,y_1):
 
@@ -483,20 +550,13 @@ def C_G2_G3_eval(i):
 
     theta = math.degrees(radians)
 
-    #evaluation of starting angle
+    # finds the cordinate location of point #1.
+    arc_cords_p1(x_1, y_1, origin_x, origin_y, theta)
 
-
-    #Evaluation of total rotation
-    # finds corcinate that point #1 is in
-    arc_cords_p1(x_1, y_1, origin_x, origin_y)
-    # finds the cordinate that point #2 is in
-    arc_cords_p2(x_2, y_2, origin_x, origin_y)
-
-    # finds the degrees of rotation of the shortest angle between point #1 and #2
-    #arc_angle(x_1, y_1, origin_x, origin_y, x_2, y_2)
+    # finds the cordinate location of point #2.
+    arc_cords_p2(x_2, y_2, origin_x, origin_y, theta)
 
     #based on comparison between coordinates of point #1 and #2 then degrees of rotation is evaluated
-    # so correct one is selected
     arc_comp(cord_p1, cord_p2)
 
 def g_eval(f,data):
