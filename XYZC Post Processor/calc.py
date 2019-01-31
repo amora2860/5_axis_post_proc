@@ -252,12 +252,77 @@ def arc_cords_p2(x_2, y_2, origin_x, origin_y, theta):
             cord_p2 = "2&3"
     return cord_p2
 
-def eval1_theta(cord_p1, cord_p2, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
+def eval1_theta(cord_p1, cord_p2, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code):
+    global C
     m1 = (y_1 - origin_y) / (x_1 - origin_x)
     b1 = y_1 - m1 * x_1
     y_3 = m1 * x_2 + b1
 
-#I need to add the comparisions for if at 180
+    if y_3 == y_2:
+        C = theta
+    else:
+        #this is P1 in cord 1 and P2 in cord 3
+        if cord_p1 == "1":
+            if y_2 > y_3:
+                if G_code == "G2":
+                    C = 360 - theta
+
+                elif G_code == "G3":
+                    C = theta
+
+            if y_2 < y_3:
+                if G_code == "G2":
+                    C = theta
+
+                elif G_code == "G3":
+                    C = 360 - theta
+
+        #this is P1 in cord 2 and P2 in cord 4
+        elif cord_p1 == "2":
+            if y_2 > y_3:
+
+                if G_code == "G2":
+                     C = 360 - theta
+
+                elif G_code == "G3":
+                     C = theta
+
+            if y_2 < y_3:
+                if G_code == "G2":
+                     C = theta
+
+                elif G_code == "G3":
+                     C = 360 - theta
+        #this is P1 in cord 3 and P2 in cord 1
+        elif cord_p1 == "3":
+            if G_code == "G2":
+                 C = 360 - theta
+
+            elif G_code == "G3":
+                 C = theta
+
+            if y_2 < y_3:
+                if G_code == "G2":
+                    C = theta
+
+                elif G_code == "G3":
+                    C = 360 - theta
+#I have to check these numbers
+        #this is P1 in cord 4 and P2 in cord 4
+        elif cord_p1 == "4":
+            if G_code == "G2":
+                 C = 360 - theta
+
+            elif G_code == "G3":
+                C = theta
+
+            if y_2 < y_3:
+                if G_code == "G2":
+                    C = theta
+
+                elif G_code == "G3":
+                    C = 360 - theta
+
 
 def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
     m1 = (y_1 - origin_y)/(x_1 - origin_x)
