@@ -26,13 +26,14 @@ global words
 global C_arc
 global theta
 global G_code
+global C_start
 
 # this is a list of initialized values of the global variables.
 x_0 = 0.0
 y_0 = 1.0
 
 C = 0.0
-theta = 0.0
+
 
 flag_1 = 0
 flag_2 = 0
@@ -252,7 +253,8 @@ def arc_cords_p2(x_2, y_2, origin_x, origin_y, theta):
             cord_p2 = "2&3"
     return cord_p2
 
-def eval1_theta(cord_p1, cord_p2, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code):
+#if point 1 and point 2 are in the same theta this function evaluates what theta should be.
+def eval1_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code):
     global C
     m1 = (y_1 - origin_y) / (x_1 - origin_x)
     b1 = y_1 - m1 * x_1
@@ -295,37 +297,41 @@ def eval1_theta(cord_p1, cord_p2, x_1, y_1, origin_x, origin_y, x_2, y_2, theta,
                      C = 360 - theta
         #this is P1 in cord 3 and P2 in cord 1
         elif cord_p1 == "3":
-            if G_code == "G2":
-                 C = 360 - theta
+            if y_2 > y_3:
 
-            elif G_code == "G3":
-                 C = theta
+                if G_code == "G2":
+                     C = theta
+
+                elif G_code == "G3":
+                     C = 360 - theta
 
             if y_2 < y_3:
                 if G_code == "G2":
-                    C = theta
+                    C = 360 - theta
 
                 elif G_code == "G3":
-                    C = 360 - theta
-#I have to check these numbers
+                    C = theta
+
         #this is P1 in cord 4 and P2 in cord 4
         elif cord_p1 == "4":
-            if G_code == "G2":
-                 C = 360 - theta
-
-            elif G_code == "G3":
-                C = theta
-
-            if y_2 < y_3:
+            if y_2 > y_3:
                 if G_code == "G2":
                     C = theta
 
                 elif G_code == "G3":
                     C = 360 - theta
 
+            if y_2 < y_3:
+                if G_code == "G2":
+                    C = 360 - theta
 
+                elif G_code == "G3":
+                    C = theta
+
+#if point 1 and point 2 are in opposite quadrants this function evaluates what theta should be.
 def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
-    m1 = (y_1 - origin_y)/(x_1 - origin_x)
+    global C
+    m1= (y_1 - origin_y)/(x_1 - origin_x)
     b1 = y_1 - m1 * x_1
 
     #y_3 is a theroretical value that will identify whether point_2 is above or below point_1
@@ -363,7 +369,7 @@ def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
             elif G_code == "G3":
                 C = theta
 
-#this needs to be checked along with #4
+
     if cord_p1 == "3":
         if y_2 > y_3:
             if G_code == "G2":
@@ -396,14 +402,14 @@ def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
     return C
 
 # this function is meant to evaluate how the vector angle should be altered.
-def arc_comp (cord_p1, cord_p2):
+def arc_comp (cord_p1, cord_p2, G_code):
     global theta
-    global G_code
+    global C
 
     if cord_p1 == "1":
         if cord_p2 == "1":
             #this theta will have to tell if point_1 is to the right or left of point 2
-            eval2_theta()
+            eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code)
 
         elif cord_p2 == "2" or cord_p2 == "1&2" or cord_p2 == "2&3":
             if G_code == "G2":
@@ -413,7 +419,7 @@ def arc_comp (cord_p1, cord_p2):
                 C = theta
 
         elif cord_p2 == "3":
-            eval1_theta()
+            eval1_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code)
 
         elif cord_p2 == "4" or cord_p2 == "3&4" or cord_p2 == "4&1":
             if G_code == "G3":
@@ -433,7 +439,7 @@ def arc_comp (cord_p1, cord_p2):
                 C = 360 - theta
 
         elif cord_p2 == "2":
-            eval2_theta()
+            eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code)
 
         elif cord_p2 == "3" or cord_p2 == "2&3" or cord_p2 == "3&4":
             if G_code == "G2":
@@ -443,12 +449,12 @@ def arc_comp (cord_p1, cord_p2):
                 C = theta
                 
         elif cord_p2 == "4":
-            eval1_theta()
+            eval1_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code)
 
     if cord_p1 == "3":
         if cord_p2 == "1":
             # this theta will have to tell if point_1 is to the right or left of point 2
-            eval1_theta()
+            eval1_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code)
         
         elif cord_p2 == "2" or cord_p2 == "1&2" or cord_p2 == "2&3":
             if G_code == "G2":
@@ -457,7 +463,7 @@ def arc_comp (cord_p1, cord_p2):
                 C = 360 - theta
 
         elif cord_p2 == "3":
-            eval2_theta()
+            eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code)
 
         elif cord_p2 == "4" or cord_p2 == "3&4" or cord_p2 == "4&1":
             if G_code == "G2":
@@ -476,7 +482,7 @@ def arc_comp (cord_p1, cord_p2):
                 C = theta
 
         elif cord_p2 == "2":
-            eval1_theta()
+            eval1_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code)
 
         elif cord_p2 == "3" or cord_p2 == "3&4":
             if G_code == "G2":
@@ -485,7 +491,7 @@ def arc_comp (cord_p1, cord_p2):
                 C = 360 - theta
 
         elif cord_p2 == "4":
-            eval2_theta()
+            eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code)
 
     if cord_p1 == "1&2":
         if cord_p2 == "1" or cord_p2 == "4" or cord_p2 == "2&3" or cord_p2 == "4&1":
@@ -563,6 +569,34 @@ def arc_comp (cord_p1, cord_p2):
             C = theta
 
 
+
+
+#This function identifies the starting poistion that the C axis must be in before performing an arc.
+def starting_c_pos(cord_p1, G_code):
+    global theta
+    global C_start
+
+
+    #straight line is created at the arcs origin point
+    C_line(origin_x, origin_y)
+
+    #cordinate of point 1 needs to be identified
+    line_eval_G0_G1(origin_x, origin_y, x_1, y_1)
+
+
+    #the angle needs to be determined for point 1 based on c_line on the rigin
+    cord_angle_calc(dotprod, mag_mult)
+
+
+    #90 is to be added or subtracted based on G2 or G3
+    if G_code == "G2":
+        C_start = C + 90
+
+    elif G_code == "G3":
+        C_start = C - 90
+
+    return C_start
+
 #this function is to only be used if G0/G1 is going to another G0/G1
 def C_G0_G1_eval(i,x_1,y_1):
 
@@ -595,8 +629,12 @@ def C_G2_G3_eval(i):
     global last_G_code
     global x_0
     global y_0
+    global theta
+    global G_code
 
     G2_G3_values(i)
+
+    G_code = words[0]
 
     origin_xy(x_1, y_1, i_2, y_2)
 
@@ -621,8 +659,11 @@ def C_G2_G3_eval(i):
     # finds the cordinate location of point #2.
     arc_cords_p2(x_2, y_2, origin_x, origin_y, theta)
 
-    #based on comparison between coordinates of point #1 and #2 then degrees of rotation is evaluated
-    arc_comp(cord_p1, cord_p2)
+    #based on comparison between coordinates of point #1 and #2 then how theta should be evaluated
+    arc_comp(cord_p1, cord_p2, G_code)
+
+    #starting C rotation is the angle between C_line and p1. Then depending on G2 or G3 you add 90 or subtract 90
+    starting_c_pos(cord_p1, G_code)
 
 def g_eval(f,data):
     global flag_1
@@ -707,15 +748,16 @@ def g_eval(f,data):
                     # this raises the Z axis so the cut material will not be ruined
                     f.write("G1" + " Z " + str(1.125) + "\r\n")
 
+
                     # Have C axis rotate before moving to next point.
-                    f.write("G1" + " C " + str("%.3f" % round(C, 3)) + "\r\n")
+                    f.write("G1" + " C " + str("%.3f" % round(C_start, 3)) + "\r\n")
 
                     # this lowers the Z axis back down so it can cut
                     f.write("G1" + " Z " + str(-1.125) + "\r\n")
 
 
                     #last step in this process is to add the line "C XXX.XXX" which will be the degrees of rotation of the C axis
-                    f.write( str(i[:-1]) + "  C " + str("%.3f" % round(C_arc,3)) +  "\r\n")
+                    f.write( str(i[:-1]) + "  C " + str("%.3f" % round(C,3)) +  "\r\n")
 
 
 
