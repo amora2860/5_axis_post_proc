@@ -50,6 +50,7 @@ def G2_G3_values(i):
     y_2 = float(words[4])
     i_2 = float(words[6])
     j_2 = float(words[8])
+    return x_2, y_2, i_2, j_2
 
 def G0_G1_values(i):
     global x_2
@@ -58,11 +59,14 @@ def G0_G1_values(i):
     x_2 = float(words[2])
     y_2 = float(words[4])
 
-def origin_xy(x_1, y_1, i_2, y_2):
+
+def origin_xy(x_1, y_1, i_2, j_2):
     global origin_x
     global origin_y
+
     origin_x = x_1 + i_2
-    origin_y = y_1 + y_2
+    origin_y = y_1 + j_2
+    return origin_x, origin_y
 
 def vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y):
     global VEC_1x
@@ -73,6 +77,7 @@ def vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y):
     VEC_1y = origin_y - y_1
     VEC_2x = origin_x - x_2
     VEC_2y = origin_y - y_2
+    return VEC_1x, VEC_1y, VEC_2x, VEC_2y
 
 def vectors_G0_G1(x_0, y_0,x_1, y_1, x_2, y_2):
     global VEC_1x
@@ -88,24 +93,25 @@ def vectors_G0_G1(x_0, y_0,x_1, y_1, x_2, y_2):
 def dot(VEC_1x, VEC_2x, VEC_1y, VEC_2y):
     global  dotprod
     dotprod = (VEC_1x * VEC_2x) + (VEC_1y * VEC_2y)
-
+    return dotprod
 
 def magnitude(VEC_1x,VEC_1y, VEC_2x, VEC_2y):
     global mag_1
     global mag_2
     mag_1 = math.sqrt((VEC_1x**2) + (VEC_1y**2))
     mag_2 = math.sqrt((VEC_2x**2) + (VEC_2y**2))
-
+    return mag_1, mag_2
 
 def multi_mag(mag_1, mag_2):
     global mag_mult
     mag_mult = mag_1 * mag_2
+    return mag_mult
 
 # this equation gives the angle in radians between our two lines
 def rads(dotprod, mag_mult):
     global radians
     radians = math.acos(dotprod / mag_mult)
-
+    return radians
 
 def line_eval_G0_G1(x_1, y_1, x_2, y_2):
     global cord
@@ -624,17 +630,14 @@ def C_G0_G1_eval(i,x_1,y_1):
 
 
 #this function is to only be used if G0/G1 is going to another G0/G1
-def C_G2_G3_eval(i):
+def C_G2_G3_eval(i, G_code):
     global C
     global last_G_code
     global x_0
     global y_0
     global theta
-    global G_code
 
     G2_G3_values(i)
-
-    G_code = words[0]
 
     origin_xy(x_1, y_1, i_2, y_2)
 
@@ -664,17 +667,19 @@ def C_G2_G3_eval(i):
 
     #starting C rotation is the angle between C_line and p1. Then depending on G2 or G3 you add 90 or subtract 90
     starting_c_pos(cord_p1, G_code)
+    return C
 
 def g_eval(f,data):
     global flag_1
     global flag_2
     global x_1
     global y_1
+    global G_code
     #for loop ensures that each line is read in the g-code file
     for i in data:
         global words
         words = i.split()
-
+        G_code = words[0]
         # this is a logic gate that will pass each line until (* SHAPE Nr: 0 *) is reached.
         #(* SHAPE Nr: 0 *) is the universal start of the G-code. Everything before it is not important.
         if flag_1 != 1:
@@ -743,7 +748,7 @@ def g_eval(f,data):
                 #This is a catch incase G20 or G21 is in the G-code lines
                 if words[0] != "G20" and words[0] != "G21":
 
-                    C_G2_G3_eval(i)
+                    C_G2_G3_eval(i, G_code)
 
                     # this raises the Z axis so the cut material will not be ruined
                     f.write("G1" + " Z " + str(1.125) + "\r\n")
