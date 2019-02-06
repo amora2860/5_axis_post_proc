@@ -131,7 +131,7 @@ def line_eval_G0_G1(x_1, y_1, x_2, y_2):
 
 #this needs to be oriented towards evaluating the center point
 def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
-    global C
+
     global cord
 
     if x_1 == origin_x:
@@ -145,7 +145,7 @@ def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
 
     if x_2 < x_1:
         cord = "left_side"
-
+    return cord
 
 def cord_angle_calc(dotprod, mag_mult):
     global C
@@ -169,14 +169,15 @@ def cord_angle_calc(dotprod, mag_mult):
 
 #this gives the orientation of C to every point that is evaluated
 def C_line(x_1, y_1):
-    global  x_0
-    global  y_0
+    global x_0
+    global y_0
+
 
     x_0 = x_1
     y_0 = y_1 + 1
 
 # this function finds what cordinate that point 1 and point 2 are in.
-def arc_cords_p1(x_1, y_1, origin_x, origin_y, theta):
+def arc_cords_p1(x_1, y_1, origin_x, origin_y):
     global cord_p1
 
     # is point #1 on the left side of the origin
@@ -218,7 +219,7 @@ def arc_cords_p1(x_1, y_1, origin_x, origin_y, theta):
     return cord_p1
 
 # this function finds what cordinate that point 1 and point 2 are in.
-def arc_cords_p2(x_2, y_2, origin_x, origin_y, theta):
+def arc_cords_p2(x_2, y_2, origin_x, origin_y):
     global cord_p2
 
  # is point #2 on the left side of the origin
@@ -337,7 +338,7 @@ def eval1_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2, theta, G_code):
 #if point 1 and point 2 are in opposite quadrants this function evaluates what theta should be.
 def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
     global C
-    m1= (y_1 - origin_y)/(x_1 - origin_x)
+    m1 = (y_1 - origin_y)/(x_1 - origin_x)
     b1 = y_1 - m1 * x_1
 
     #y_3 is a theroretical value that will identify whether point_2 is above or below point_1
@@ -408,10 +409,11 @@ def eval2_theta(cord_p1, x_1, y_1, origin_x, origin_y, x_2, y_2,theta, G_code):
     return C
 
 # this function is meant to evaluate how the vector angle should be altered.
-def arc_comp (cord_p1, cord_p2, G_code):
-    global theta
+def arc_comp (cord_p1, cord_p2, G_code, theta):
     global C
-
+    global origin_x
+    global origin_y
+    print("this is theta in arc_comp" + str(theta))
     if cord_p1 == "1":
         if cord_p2 == "1":
             #this theta will have to tell if point_1 is to the right or left of point 2
@@ -573,18 +575,20 @@ def arc_comp (cord_p1, cord_p2, G_code):
 
         elif cord_p2 == "2&3":
             C = theta
-
+    return C
 
 
 
 #This function identifies the starting poistion that the C axis must be in before performing an arc.
-def starting_c_pos(cord_p1, G_code):
-    global theta
+def starting_c_pos(origin_x, origin_y, G_code):
     global C_start
+    global x_1
+    global y_1
 
 
     #straight line is created at the arcs origin point
     C_line(origin_x, origin_y)
+
 
     #cordinate of point 1 needs to be identified
     line_eval_G0_G1(origin_x, origin_y, x_1, y_1)
@@ -593,7 +597,7 @@ def starting_c_pos(cord_p1, G_code):
     #the angle needs to be determined for point 1 based on c_line on the rigin
     cord_angle_calc(dotprod, mag_mult)
 
-
+    print("this is C in starting_c_pos after cord_angle_calc" + str(C))
     #90 is to be added or subtracted based on G2 or G3
     if G_code == "G2":
         C_start = C + 90
@@ -635,7 +639,6 @@ def C_G2_G3_eval(i, G_code):
     global last_G_code
     global x_0
     global y_0
-    global theta
 
     G2_G3_values(i)
 
@@ -653,20 +656,22 @@ def C_G2_G3_eval(i, G_code):
     multi_mag(mag_1, mag_2)
 
     rads(dotprod, mag_mult)
-
+    print("this is the type for x_1 before theta " + str(type(x_1)))
     theta = math.degrees(radians)
-
+    print("this is radians before arc_cords" + str(radians))
+    print("this is at theta before arc cords " + str(theta))
     # finds the cordinate location of point #1.
-    arc_cords_p1(x_1, y_1, origin_x, origin_y, theta)
+    arc_cords_p1(x_1, y_1, origin_x, origin_y)
 
     # finds the cordinate location of point #2.
-    arc_cords_p2(x_2, y_2, origin_x, origin_y, theta)
+    arc_cords_p2(x_2, y_2, origin_x, origin_y)
 
     #based on comparison between coordinates of point #1 and #2 then how theta should be evaluated
-    arc_comp(cord_p1, cord_p2, G_code)
+    arc_comp(cord_p1, cord_p2, G_code,theta)
 
     #starting C rotation is the angle between C_line and p1. Then depending on G2 or G3 you add 90 or subtract 90
-    starting_c_pos(cord_p1, G_code)
+    starting_c_pos(origin_x, origin_y, G_code)
+
     return C
 
 def g_eval(f,data):
@@ -679,7 +684,7 @@ def g_eval(f,data):
     for i in data:
         global words
         words = i.split()
-        G_code = words[0]
+
         # this is a logic gate that will pass each line until (* SHAPE Nr: 0 *) is reached.
         #(* SHAPE Nr: 0 *) is the universal start of the G-code. Everything before it is not important.
         if flag_1 != 1:
@@ -697,6 +702,7 @@ def g_eval(f,data):
                 else:
                     f.write(str(i))
         else:
+            G_code = words[0]
             # this logic checks to see if the line read is a rapid movement. It will print and store the numbers X & Y.
             if words[0] == "G0" or words[0] == "G1":
 
