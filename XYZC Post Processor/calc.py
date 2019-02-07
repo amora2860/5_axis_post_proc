@@ -50,6 +50,7 @@ def G2_G3_values(i):
     y_2 = float(words[4])
     i_2 = float(words[6])
     j_2 = float(words[8])
+
     return x_2, y_2, i_2, j_2
 
 def G0_G1_values(i):
@@ -66,6 +67,7 @@ def origin_xy(x_1, y_1, i_2, j_2):
 
     origin_x = x_1 + i_2
     origin_y = y_1 + j_2
+
     return origin_x, origin_y
 
 def vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y):
@@ -147,6 +149,29 @@ def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
         cord = "left_side"
     return cord
 
+def c_start_cord_angle_calc(dotprod, mag_mult):
+    global C_start
+    global cord
+    if cord == "none_0":
+        C_start = 0
+
+    if cord == "none_90":
+        C_start = 90
+
+    if cord == "right_side":
+        rads(dotprod, mag_mult)
+        theta = math.degrees(radians)
+        print("this is C_start in cord_angle_calc right_side " + str(theta))
+        C_start = theta
+
+    if cord == "left_side":
+        rads(dotprod, mag_mult)
+        theta = math.degrees(radians)
+        print("this is C_start in cord_angle_calc left_side " + str(theta))
+        C_start = 360 - theta
+
+    print("this is C in cord_angle_calc at the end " + str(C))
+
 def cord_angle_calc(dotprod, mag_mult):
     global C
     global cord
@@ -159,13 +184,17 @@ def cord_angle_calc(dotprod, mag_mult):
     if cord == "right_side":
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-
+        print("this is C_start in cord_angle_calc right_side " + str(theta))
         C = theta
 
     if cord == "left_side":
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
+        print("this is C_start in cord_angle_calc left_side " + str(theta))
         C = 360 - theta
+
+    print("this is C in cord_angle_calc at the end " + str(C))
+
 
 #this gives the orientation of C to every point that is evaluated
 def C_line(x_1, y_1):
@@ -413,7 +442,7 @@ def arc_comp (cord_p1, cord_p2, G_code, theta):
     global C
     global origin_x
     global origin_y
-    print("this is theta in arc_comp" + str(theta))
+    print("this is theta at the start of arc_comp" + str(theta))
     if cord_p1 == "1":
         if cord_p2 == "1":
             #this theta will have to tell if point_1 is to the right or left of point 2
@@ -579,6 +608,8 @@ def arc_comp (cord_p1, cord_p2, G_code, theta):
 
 
 
+
+
 #This function identifies the starting poistion that the C axis must be in before performing an arc.
 def starting_c_pos(origin_x, origin_y, G_code):
     global C_start
@@ -586,24 +617,36 @@ def starting_c_pos(origin_x, origin_y, G_code):
     global y_1
 
 
-    #straight line is created at the arcs origin point
+    #straight line is created at the arcs point 1
     C_line(origin_x, origin_y)
-
 
     #cordinate of point 1 needs to be identified
     line_eval_G0_G1(origin_x, origin_y, x_1, y_1)
 
+    vectors_G2_G3(x_1, y_1, x_0, y_0, origin_x, origin_y)
+
+    # the arc rotation should be calulated for each of the arcs.
+    dot(VEC_1x, VEC_2x, VEC_1y, VEC_2y)
+
+    # the magnitude of both vectors is being evaluated
+    magnitude(VEC_1x, VEC_1y, VEC_2x, VEC_2y)
+
+    # finally the magnitudes are multiplied
+    multi_mag(mag_1, mag_2)
 
     #the angle needs to be determined for point 1 based on c_line on the rigin
-    cord_angle_calc(dotprod, mag_mult)
+    c_start_cord_angle_calc(dotprod, mag_mult)
 
-    print("this is C in starting_c_pos after cord_angle_calc" + str(C))
+
     #90 is to be added or subtracted based on G2 or G3
     if G_code == "G2":
-        C_start = C + 90
+        C_start = C_start + 90
 
     elif G_code == "G3":
-        C_start = C - 90
+        C_start = C_start - 90
+
+    if C_start >= 360:
+        C_start = C_start - 360
 
     return C_start
 
@@ -642,7 +685,7 @@ def C_G2_G3_eval(i, G_code):
 
     G2_G3_values(i)
 
-    origin_xy(x_1, y_1, i_2, y_2)
+    origin_xy(x_1, y_1, i_2, j_2)
 
     vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y)
 
@@ -656,10 +699,9 @@ def C_G2_G3_eval(i, G_code):
     multi_mag(mag_1, mag_2)
 
     rads(dotprod, mag_mult)
-    print("this is the type for x_1 before theta " + str(type(x_1)))
+
     theta = math.degrees(radians)
-    print("this is radians before arc_cords" + str(radians))
-    print("this is at theta before arc cords " + str(theta))
+
     # finds the cordinate location of point #1.
     arc_cords_p1(x_1, y_1, origin_x, origin_y)
 
