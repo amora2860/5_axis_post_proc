@@ -8,7 +8,6 @@ global x_2
 global y_2
 global i_2
 global j_2
-global t
 global origin_x
 global origin_y
 global VEC_0x
@@ -25,7 +24,6 @@ global mag_mult
 global words
 global C_arc
 global theta
-global G_code
 global C_start
 
 # this is a list of initialized values of the global variables.
@@ -34,18 +32,17 @@ y_0 = 1.0
 
 C = 0.0
 
-
 flag_1 = 0
 flag_2 = 0
 
 
-def G2_G3_values(i):
+def G2_G3_values(words):
     global x_2
     global y_2
     global i_2
     global j_2
 
-    words = i.split()
+
     x_2 = float(words[2])
     y_2 = float(words[4])
     i_2 = float(words[6])
@@ -53,13 +50,14 @@ def G2_G3_values(i):
 
     return x_2, y_2, i_2, j_2
 
-def G0_G1_values(i):
+def G0_G1_values(words):
     global x_2
     global y_2
-    words = i.split()
+
     x_2 = float(words[2])
     y_2 = float(words[4])
 
+    return x_2, y_2
 
 def origin_xy(x_1, y_1, i_2, j_2):
     global origin_x
@@ -75,10 +73,12 @@ def vectors_G2_G3(x_1, y_1, x_2, y_2, origin_x, origin_y):
     global VEC_1y
     global VEC_2x
     global VEC_2y
+
     VEC_1x = origin_x - x_1
     VEC_1y = origin_y - y_1
     VEC_2x = origin_x - x_2
     VEC_2y = origin_y - y_2
+
     return VEC_1x, VEC_1y, VEC_2x, VEC_2y
 
 def vectors_G0_G1(x_0, y_0,x_1, y_1, x_2, y_2):
@@ -90,7 +90,7 @@ def vectors_G0_G1(x_0, y_0,x_1, y_1, x_2, y_2):
     VEC_1y = y_0 - y_1
     VEC_2x = x_2 - x_1
     VEC_2y = y_2 - y_1
-
+    return VEC_1x, VEC_1y, VEC_2x, VEC_2y
 
 def dot(VEC_1x, VEC_2x, VEC_1y, VEC_2y):
     global  dotprod
@@ -131,6 +131,8 @@ def line_eval_G0_G1(x_1, y_1, x_2, y_2):
     elif x_2 < x_1:
         cord = "left_side"
 
+    return cord
+
 #this needs to be oriented towards evaluating the center point
 def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
 
@@ -147,6 +149,7 @@ def line_eval_G2_G3(x_1, y_1, origin_x, origin_y):
 
     if x_2 < x_1:
         cord = "left_side"
+
     return cord
 
 def c_start_cord_angle_calc(dotprod, mag_mult):
@@ -161,20 +164,21 @@ def c_start_cord_angle_calc(dotprod, mag_mult):
     if cord == "right_side":
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-        print("this is C_start in cord_angle_calc right_side " + str(theta))
+
         C_start = theta
 
     if cord == "left_side":
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-        print("this is C_start in cord_angle_calc left_side " + str(theta))
+
         C_start = 360 - theta
 
-    print("this is C in cord_angle_calc at the end " + str(C))
+    return C_start
 
 def cord_angle_calc(dotprod, mag_mult):
     global C
     global cord
+
     if cord == "none_0":
         C = 0
 
@@ -182,18 +186,20 @@ def cord_angle_calc(dotprod, mag_mult):
         C = 90
 
     if cord == "right_side":
+
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-        print("this is C_start in cord_angle_calc right_side " + str(theta))
+
         C = theta
 
     if cord == "left_side":
+
         rads(dotprod, mag_mult)
         theta = math.degrees(radians)
-        print("this is C_start in cord_angle_calc left_side " + str(theta))
-        C = 360 - theta
 
-    print("this is C in cord_angle_calc at the end " + str(C))
+        C = 360 - theta
+    return C
+
 
 
 #this gives the orientation of C to every point that is evaluated
@@ -201,9 +207,9 @@ def C_line(x_1, y_1):
     global x_0
     global y_0
 
-
     x_0 = x_1
     y_0 = y_1 + 1
+    return x_0, y_0
 
 # this function finds what cordinate that point 1 and point 2 are in.
 def arc_cords_p1(x_1, y_1, origin_x, origin_y):
@@ -442,7 +448,7 @@ def arc_comp (cord_p1, cord_p2, G_code, theta):
     global C
     global origin_x
     global origin_y
-    print("this is theta at the start of arc_comp" + str(theta))
+
     if cord_p1 == "1":
         if cord_p2 == "1":
             #this theta will have to tell if point_1 is to the right or left of point 2
@@ -651,9 +657,10 @@ def starting_c_pos(origin_x, origin_y, G_code):
     return C_start
 
 #this function is to only be used if G0/G1 is going to another G0/G1
-def C_G0_G1_eval(i,x_1,y_1):
+def C_G0_G1_eval(x_1,y_1):
+    global words
 
-    G0_G1_values(i)
+    G0_G1_values(words)
 
     C_line(x_1,y_1)
 
@@ -671,19 +678,19 @@ def C_G0_G1_eval(i,x_1,y_1):
     #there needs to be an evaluation as to which quadrent the second point resides in.
     line_eval_G0_G1(x_1, y_1, x_2, y_2)
 
-    cord_angle_calc(dotprod,mag_mult)
+    cord_angle_calc(dotprod, mag_mult)
 
     return C
 
 
 #this function is to only be used if G0/G1 is going to another G0/G1
-def C_G2_G3_eval(i, G_code):
+def C_G2_G3_eval(G_code):
     global C
-    global last_G_code
     global x_0
     global y_0
+    global words
 
-    G2_G3_values(i)
+    G2_G3_values(words)
 
     origin_xy(x_1, y_1, i_2, j_2)
 
@@ -714,24 +721,27 @@ def C_G2_G3_eval(i, G_code):
     #starting C rotation is the angle between C_line and p1. Then depending on G2 or G3 you add 90 or subtract 90
     starting_c_pos(origin_x, origin_y, G_code)
 
-    return C
+    return C, C_start
 
+# this is the main function that is called from main_gui.py
+# this function takes the
 def g_eval(f,data):
     global flag_1
     global flag_2
     global x_1
     global y_1
-    global G_code
+    global words
+
     #for loop ensures that each line is read in the g-code file
     for i in data:
-        global words
+
         words = i.split()
 
         # this is a logic gate that will pass each line until (* SHAPE Nr: 0 *) is reached.
         #(* SHAPE Nr: 0 *) is the universal start of the G-code. Everything before it is not important.
         if flag_1 != 1:
             #I found there are blank lines before (* SHAPE Nr: 0 *) comes up.
-            if i =="\n":
+            if i == "\n":
                 f.write(str(i))
             else:
                 #this ensures that any lines are printed if they are before (* SHAPE.
@@ -746,13 +756,13 @@ def g_eval(f,data):
         else:
             G_code = words[0]
             # this logic checks to see if the line read is a rapid movement. It will print and store the numbers X & Y.
-            if words[0] == "G0" or words[0] == "G1":
+            if G_code == "G0" or G_code == "G1":
 
                 if words[1] == "X":
                     # This flag checks the first G0 or G1 movement and does not move C
                     if flag_2 == 1:
 
-                    #saving values into float values for evaluation later on
+                    # saving values into float values for evaluation later on
                         x_1 = float(words[2])
                         y_1 = float(words[4])
 
@@ -765,7 +775,7 @@ def g_eval(f,data):
 
 
                         #evaluation of where C axis should point
-                        C_G0_G1_eval(i,x_1,y_1)
+                        C_G0_G1_eval(x_1,y_1)
 
                         #this raises the Z axis so the cut material will not be ruined
                         f.write("G1" + " Z " + str(1.125) + "\r\n")
@@ -791,12 +801,12 @@ def g_eval(f,data):
             # this section of code looks for G2 and should look for G3 which are arc commands and identifies each
             # section of the G-code and pulls out the X ,Y, I, J and turns them into float.
             # At the start of the G-code file is a G20 command which needs to be vetted out.
-            elif words[0] == "G2" or words[0] == "G3":
+            elif G_code == "G2" or G_code == "G3":
 
                 #This is a catch incase G20 or G21 is in the G-code lines
-                if words[0] != "G20" and words[0] != "G21":
+                if G_code != "G20" and G_code != "G21":
 
-                    C_G2_G3_eval(i, G_code)
+                    C_G2_G3_eval(G_code)
 
                     # this raises the Z axis so the cut material will not be ruined
                     f.write("G1" + " Z " + str(1.125) + "\r\n")
@@ -813,10 +823,7 @@ def g_eval(f,data):
                     f.write( str(i[:-1]) + "  C " + str("%.3f" % round(C,3)) +  "\r\n")
 
 
-
-
                 #this section of code takes the end point and makes it the new starting point.
-                #the t == 1 flag insures that this part is only entered into if a second point is defined.
                 else:
                     f.write(str(i))
                 x_1 = float(words[2])
